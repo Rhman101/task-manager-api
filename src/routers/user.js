@@ -50,15 +50,6 @@ router.post('/users/logoutall', auth, async (req, res) => {
     }
 })
 
-router.get('/users', auth, async (req, res) => { // Sends a list of all users and data. 
-    try {
-        const users = await User.find({});
-        res.send(users);
-    } catch (error) {
-        res.status(500).send(error);
-    }
-});
-
 router.get('/users/me', auth, async (req, res) => {
     res.send(req.user);
 })

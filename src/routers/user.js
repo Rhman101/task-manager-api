@@ -55,21 +55,20 @@ router.get('/users/me', auth, async (req, res) => {
 })
 
 router.patch('/users/me', auth, async (req, res) => { // Edit user details. 
-    console.log(req.user);
     const items = Object.keys(req.body);
     const allowedItems = ['name', 'age', 'password', 'email'];
     const result = items.every((elem) => allowedItems.includes(elem));
-    !result && res.status(404).send({ error: "Invalid input"});
+    !result && res.status(400).send({ error: "Invalid input"});
     try {
         items.forEach((elem) => req.user[elem] = req.body[elem]);
         await req.user.save();
         res.send(req.user);
     } catch (e) {
-        res.status(500).send(e);
+        res.status(500).send();
     }
 });
 
-router.delete('/users/me', auth, async (req, res) => { // Delete user by ID. 
+router.delete('/users/me', auth, async (req, res) => { // Delete user
     try {
         const user = await User.findByIdAndDelete(req.user._id);
         // if (!user) {
@@ -77,8 +76,6 @@ router.delete('/users/me', auth, async (req, res) => { // Delete user by ID.
         // }
         await req.user.remove();
         res.send(req.user);
-        console.log('req.user.name', req.user.name);
-        console.log('req.user.email', req.user.email);
         sendGoodbyeEmail(req.user.email, req.user.name)
     } catch (e) {
         res.status(500).send(e); 

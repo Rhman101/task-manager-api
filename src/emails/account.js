@@ -20,7 +20,18 @@ const sendGoodbyeEmail = (email, name) => {
     })
 }
 
+const sendPasswordResetEmail = (email, password) => {
+    console.log('firing');
+    sgMail.send({
+        to: email,
+        from: 'rhuysen@gmail.com',
+        subject: 'Request new password',
+        text: `Dear Person, here is your new password: ${password}`
+    })
+}
+
 module.exports = {
     sendWelcomeEmail,
-    sendGoodbyeEmail
+    sendGoodbyeEmail,
+    sendPasswordResetEmail
 }

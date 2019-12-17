@@ -28,6 +28,33 @@ router.post('/users/login', async (req, res) => { // Log in user.
     }
 });
 
+router.post('/users/requestNewPassword', async (req, res) => { // Requests new password to be emailed to user
+    try {
+        const user = await User.requestNewPassword(req.body.email); // Gets profile with new password
+        user.tokens = [];
+        await user.save();
+        res.send({ response: 'New password sent to your email.' });
+    } catch (e) {
+        res.status(400).send(e);
+    }
+})
+
+router.patch('/users/updatePassword', auth, async (req, res) => {
+    try {
+        if (req.body.password === req.body.newPassword) {
+            res.status(400).send({ error: 'New Password must be new' });
+        } else {
+            const user = await User.findByCredentials(req.body.email, req.body.password);
+            user.password = req.body.newPassword;
+            user.tokens = [];
+            const token = await user.generateAuthToken();
+            res.send({ user, token });
+        }
+    } catch (e) {
+        res.status(400).send(e);
+    }
+})
+
 router.post('/users/logout', auth, async (req, res) => {
     try {
         req.user.tokens = req.user.tokens.filter((elem) => {
@@ -56,7 +83,7 @@ router.get('/users/me', auth, async (req, res) => {
 
 router.patch('/users/me', auth, async (req, res) => { // Edit user details. 
     const items = Object.keys(req.body);
-    const allowedItems = ['name', 'age', 'password', 'email'];
+    const allowedItems = ['name', 'age'/* , 'password', 'email' */];
     const result = items.every((elem) => allowedItems.includes(elem));
     !result && res.status(400).send({ error: "Invalid input"});
     try {

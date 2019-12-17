@@ -3,6 +3,8 @@ const validator = require('validator')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
 const Task = require('./task');
+const { sendPasswordResetEmail } = require('./../emails/account');
+const passwordGenerator = require('generate-password');
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -89,6 +91,20 @@ userSchema.statics.findByCredentials = async (email, password) => {
         throw new Error('Unable to login')
     }
     return user
+}
+
+userSchema.statics.requestNewPassword = async (email) => {
+    const user = await User.findOne({ email })
+    if (!user) {
+        throw new Error('Unable to login')
+    }
+    const password = passwordGenerator.generate({
+        length: 10, 
+        numbers: true
+    })
+    sendPasswordResetEmail(email, password);
+    user.password = password;
+    return user;
 }
 
 // Hash the plain text password before saving

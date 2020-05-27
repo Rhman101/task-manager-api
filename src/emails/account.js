@@ -21,7 +21,6 @@ const sendGoodbyeEmail = (email, name) => {
 }
 
 const sendPasswordResetEmail = (email, password) => {
-    console.log('firing');
     sgMail.send({
         to: email,
         from: 'rhuysen@gmail.com',
